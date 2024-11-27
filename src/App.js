@@ -1,11 +1,9 @@
-import "./App.css";
+import Body from "../src/components/Body"
 
 function App() {
   return (
     <div className="App">
-      <h1 className="font-mono font-bold text-rose-500 text-3xl">
-        Om Namo Bhagavate Vasudevaya!
-      </h1>
+      <Body />
     </div>
   );
 }
