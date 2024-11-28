@@ -1,7 +1,8 @@
 import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Browse from './Browse'
+import Movies from "./Movies"
 import Login from './Login'
+import TvShows from "./TvShows"
 
 const Body = () => {
     const appRouter = createBrowserRouter([
@@ -10,9 +11,13 @@ const Body = () => {
             element: <Login />
         },
         {
-            path: "/browse",
-            element: <Browse />
-        }
+            path: "/movie",
+            element: <Movies />
+        },
+        {
+            path: "/tv",
+            element: <TvShows />
+        },
     ]);
 
 
@@ -23,4 +28,4 @@ const Body = () => {
   );
 }
 
-export default Body
+export default Body;
