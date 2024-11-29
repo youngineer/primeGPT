@@ -1,24 +1,63 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { LOGIN_PAGE_LOGO } from "../utils/constants";
-import { checkIsValid } from "../utils/validate";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../utils/firebase";  
+import { checkValidData } from "../utils/validate";  
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [isSignIn, setIsSignIn] = useState(true);
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState(""); // For sign up case
+
   const toggleSignIn = () => {
     setIsSignIn(!isSignIn);
+    setErrorMessage(""); // Clear error message on toggle
   };
 
-  const handleButtonClick = () => {
-    // console.log(`isEmailValid: ${email.current.value}; isPasswordValid: ${password.current.value}`);
-    console.log(checkIsValid(email, password));
-    const message = checkIsValid(email, password);
-    setErrorMessage(message);
+  const handleButtonClick = (e) => {
+    e.preventDefault(); // Prevent form submission
 
-  }
+    // Perform validation
+    const validationMessage = checkValidData(email, password);
+    if (validationMessage) {
+      setErrorMessage(validationMessage);
+      return; 
+    }
 
-  const email = useRef();
-  const password = useRef();
+    if (!isSignIn) {
+      // Sign Up Logic
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          console.log(user);
+          navigate("/browse")
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(`${errorMessage}`);
+        });
+    } else {
+      // Sign In Logic
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log(user);
+          navigate("/browse");
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(`${errorMessage}`);
+        });
+    }
+  };
 
   return (
     <div className="flex justify-center items-center m-2">
@@ -31,12 +70,7 @@ const Login = () => {
           />
         </div>
         <div className="border-2 border-slate-300 rounded-lg p-4 justify-start">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              checkIsValid(email, password);
-            }}
-          >
+          <form onSubmit={handleButtonClick}>
             <h2 className="text-xl font-bold text-center mb-4">
               {isSignIn ? "Sign In" : "Sign Up"}
             </h2>
@@ -46,32 +80,35 @@ const Login = () => {
                 <input
                   type="text"
                   className="border-2 border-gray-700 rounded-lg p-4 w-full my-2"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                 />
               </>
             )}
-            <p className="font-bold text-center">
-              Email or mobile phone number:
-            </p>
+            <p className="font-bold text-center">Email or mobile phone number:</p>
             <input
-              ref={email}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               type="email"
               className="border-2 border-gray-700 rounded-lg p-4 w-full my-2"
             />
             <p className="font-bold text-center">Password:</p>
             <input
-              ref={password}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               type="password"
               className="border-2 border-gray-700 rounded-lg p-4 w-full my-2"
             />
             <p className="font-semibold text-red-700">{errorMessage}</p>
             <button
               className="bg-yellow-400 text-black font-bold rounded-lg px-6 py-4 mt-4 w-full"
-              type="submit" onClick={handleButtonClick}
+              type="submit"
             >
               Continue
             </button>
             <div className="text-sm mt-4 text-center">
               <button
+                type="button"
                 className="text-blue-600 hover:"
                 onClick={toggleSignIn}
               >
