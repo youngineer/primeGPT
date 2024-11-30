@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { LOGIN_PAGE_LOGO } from "../utils/constants";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../utils/firebase";  
-import { checkValidData } from "../utils/validate";  
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "../utils/firebase";
+import { checkValidData } from "../utils/validate";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,50 +12,57 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState(""); // For sign up case
+  const [name, setName] = useState("");
 
   const toggleSignIn = () => {
     setIsSignIn(!isSignIn);
-    setErrorMessage(""); // Clear error message on toggle
+    setErrorMessage(""); 
   };
 
   const handleButtonClick = (e) => {
     e.preventDefault(); // Prevent form submission
 
-    // Perform validation
     const validationMessage = checkValidData(email, password);
     if (validationMessage) {
       setErrorMessage(validationMessage);
-      return; 
+      return;
     }
 
     if (!isSignIn) {
       // Sign Up Logic
+      if (!name.trim()) {
+        setErrorMessage("Full name is required");
+        return;
+      }
+
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          // Signed up
           const user = userCredential.user;
-          console.log(user);
-          navigate("/browse")
+          updateProfile(user, {
+            displayName: name,
+            photoURL: "https://avatars.githubusercontent.com/u/116344276?v=4"
+          })
+            .then(() => {
+              console.log(user);
+              navigate("/browse");
+            })
+            .catch((error) => {
+              setErrorMessage(error.message);
+            });
         })
         .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          setErrorMessage(`${errorMessage}`);
+          setErrorMessage(error.message);
         });
     } else {
       // Sign In Logic
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          // Signed in
           const user = userCredential.user;
           console.log(user);
           navigate("/browse");
         })
         .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          setErrorMessage(`${errorMessage}`);
+          setErrorMessage(error.message);
         });
     }
   };
@@ -80,8 +88,8 @@ const Login = () => {
                 <input
                   type="text"
                   className="border-2 border-gray-700 rounded-lg p-4 w-full my-2"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
               </>
             )}
@@ -99,7 +107,7 @@ const Login = () => {
               type="password"
               className="border-2 border-gray-700 rounded-lg p-4 w-full my-2"
             />
-            <p className="font-semibold text-red-700">{errorMessage}</p>
+            {errorMessage && <p className="font-semibold text-red-700">{errorMessage}</p>}
             <button
               className="bg-yellow-400 text-black font-bold rounded-lg px-6 py-4 mt-4 w-full"
               type="submit"
@@ -109,7 +117,7 @@ const Login = () => {
             <div className="text-sm mt-4 text-center">
               <button
                 type="button"
-                className="text-blue-600 hover:"
+                className="text-blue-600 hover:text-blue-800 transition duration-200"
                 onClick={toggleSignIn}
               >
                 {isSignIn ? "Create a new account" : "Already a user? Login"}

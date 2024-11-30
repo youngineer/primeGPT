@@ -1,2 +1,3 @@
 export const LOGIN_PAGE_LOGO = "https://m.media-amazon.com/images/G/01/digital/PV_Logo_Landscape_Smile_Centred_Dark_Squid_Ink_RGB_150._CB554671110_.png";
-export const HEADER_LOGO = "https://m.media-amazon.com/images/G/01/digital/video/web/logo-min-remaster.png";
+export const HEADER_LOGO = "https://tse1.mm.bing.net/th?id=OIG2.53imfPnp4njd37VH58RF&pid=ImgGn";
+export const USER_LOGO = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.pngall.com%2Fwp-content%2Fuploads%2F5%2FUser-Profile-PNG-Image.png&f=1&nofb=1&ipt=971331233aa0658b7863f9a435b5be1d6cee27469e9f7f5d53c3b0b75af45e89&ipo=images";
